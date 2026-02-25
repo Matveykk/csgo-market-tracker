@@ -1,0 +1,41 @@
+spring:
+  application:
+    name: csgo-market-tracker
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/csgo_tracker
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+server:
+  port: 8080
+
+# Swagger
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+
+csgo:
+  market:
+    api:
+      base-url: https://steamcommunity.com/market
+      rate-limit-ms: 2000  # 2 секунды между запросами
+    scheduler:
+      cron: "0 0 */6 * * *"  # Каждые 6 часов
