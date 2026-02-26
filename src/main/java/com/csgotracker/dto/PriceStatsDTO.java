@@ -5,17 +5,16 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class PriceDTO {
-    private Long id;
+public class PriceStatsDTO {
     private Long skinId;
     private String skinName;
-    private BigDecimal price;
-    private Integer volume;
-    private String source;
-    private LocalDateTime recordedAt;
+    private BigDecimal currentPrice;
+    private Double averagePrice;
+    private Double minPrice;
+    private Double maxPrice;
+    private Integer dataPoints; // Количество записей цен
 }
