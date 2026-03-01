@@ -7,6 +7,8 @@ import com.csgotracker.model.Skin;
 import com.csgotracker.repository.PriceHistoryRepository;
 import com.csgotracker.repository.SkinRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +24,7 @@ public class PriceService {
     private final PriceHistoryRepository priceHistoryRepository;
     private final SkinRepository skinRepository;
 
+    @CacheEvict(value = {"currentPrices", "priceHistory", "priceStats"}, key = "#skinId")
     @Transactional
     public PriceDTO addPrice(Long skinId, BigDecimal price, Integer volume, String source) {
         Skin skin = skinRepository.findById(skinId)
@@ -37,6 +40,7 @@ public class PriceService {
         return convertToDTO(saved);
     }
 
+    @Cacheable(value = "priceHistory", key = "#skinId")
     @Transactional(readOnly = true)
     public List<PriceDTO> getPriceHistory(Long skinId) {
         if (!skinRepository.existsById(skinId)) {
@@ -49,6 +53,7 @@ public class PriceService {
                 .collect(Collectors.toList());
     }
 
+    @Cacheable(value = "priceHistory", key = "#skinId + '-' + #startDate + '-' + #endDate")
     @Transactional(readOnly = true)
     public List<PriceDTO> getPriceHistoryByDateRange(Long skinId, LocalDateTime startDate, LocalDateTime endDate) {
         if (!skinRepository.existsById(skinId)) {
@@ -61,6 +66,7 @@ public class PriceService {
                 .collect(Collectors.toList());
     }
 
+    @Cacheable(value = "currentPrices", key = "#skinId")
     @Transactional(readOnly = true)
     public PriceDTO getCurrentPrice(Long skinId) {
         if (!skinRepository.existsById(skinId)) {
@@ -75,6 +81,7 @@ public class PriceService {
         return convertToDTO(latestPrice);
     }
 
+    @Cacheable(value = "priceStats", key = "#skinId + '-' + #startDate + '-' + #endDate")
     @Transactional(readOnly = true)
     public PriceStatsDTO getPriceStats(Long skinId, LocalDateTime startDate, LocalDateTime endDate) {
         Skin skin = skinRepository.findById(skinId)

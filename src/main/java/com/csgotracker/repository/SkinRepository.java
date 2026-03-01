@@ -19,7 +19,6 @@ public interface SkinRepository extends JpaRepository<Skin, Long> {
 
     List<Skin> findByRarity(String rarity);
 
-    // Поиск по части названия (LIKE)
     @Query("SELECT s FROM Skin s WHERE LOWER(s.marketHashName) LIKE LOWER(CONCAT('%', :query, '%'))")
     List<Skin> searchByName(String query);
 }

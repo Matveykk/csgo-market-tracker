@@ -6,6 +6,8 @@ import com.csgotracker.dto.SkinDTO;
 import com.csgotracker.model.Skin;
 import com.csgotracker.repository.SkinRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -20,13 +22,14 @@ public class SkinService {
 
     private final SkinRepository skinRepository;
 
-    // Получить все скины с пагинацией
+    @Cacheable(value = "skins", key = "#pageable.pageNumber + '-' + #pageable.pageSize + '-' + #pageable.sort")
     @Transactional(readOnly = true)
     public Page<SkinDTO> getAllSkins(Pageable pageable) {
         return skinRepository.findAll(pageable)
                 .map(this::convertToDTO);
     }
 
+    @Cacheable(value = "skins", key = "#id")
     @Transactional(readOnly = true)
     public SkinDTO getSkinById(Long id) {
         Skin skin = skinRepository.findById(id)
@@ -34,6 +37,7 @@ public class SkinService {
         return convertToDTO(skin);
     }
 
+    @Cacheable(value = "skinSearch", key = "#query")
     @Transactional(readOnly = true)
     public SearchResultDTO searchSkins(String query) {
         List<SkinDTO> results = skinRepository.searchByName(query)
@@ -48,6 +52,7 @@ public class SkinService {
         return new SearchResultDTO(results, results.size(), query, message);
     }
 
+    @CacheEvict(value = {"skins", "skinSearch"}, allEntries = true)
     @Transactional
     public SkinDTO createSkin(CreateSkinRequest request) {
         if (skinRepository.existsByMarketHashName(request.getMarketHashName())) {
@@ -66,6 +71,7 @@ public class SkinService {
         return convertToDTO(savedSkin);
     }
 
+    @CacheEvict(value = {"skins", "skinSearch"}, allEntries = true)
     @Transactional
     public SkinDTO updateSkin(Long id, CreateSkinRequest request) {
         Skin skin = skinRepository.findById(id)
@@ -82,6 +88,7 @@ public class SkinService {
         return convertToDTO(updatedSkin);
     }
 
+    @CacheEvict(value = {"skins", "skinSearch"}, allEntries = true)
     @Transactional
     public void deleteSkin(Long id) {
         if (!skinRepository.existsById(id)) {

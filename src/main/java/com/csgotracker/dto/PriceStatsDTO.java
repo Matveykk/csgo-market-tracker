@@ -16,5 +16,5 @@ public class PriceStatsDTO {
     private Double averagePrice;
     private Double minPrice;
     private Double maxPrice;
-    private Integer dataPoints; // Количество записей цен
+    private Integer dataPoints;
 }
